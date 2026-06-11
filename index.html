@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="OpenJournal is a public, pastel storybook journal for accomplishments, experiments, and work kept moving."
+    />
+    <title>OpenJournal</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #2f2a30;
+        --muted: #6d6470;
+        --line: #645661;
+        --paper: #fffaf2;
+        --paper-2: #f9eadb;
+        --blue: #cde9ff;
+        --mint: #d2f0df;
+        --pink: #ffd7df;
+        --gold: #ffe7a3;
+        --lilac: #dfd7ff;
+        --peach: #ffd7bd;
+        --green: #bfe8c9;
+        --shadow: 6px 7px 0 rgba(100, 86, 97, 0.18);
+        --soft-shadow: 0 18px 40px rgba(82, 65, 56, 0.13);
+        --radius: 8px;
+        --ui: ui-rounded, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        --read: Georgia, "Times New Roman", serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: var(--ui);
+        background:
+          linear-gradient(90deg, rgba(100, 86, 97, 0.08) 1px, transparent 1px),
+          linear-gradient(rgba(100, 86, 97, 0.08) 1px, transparent 1px),
+          linear-gradient(180deg, #fff7ef 0%, #f4e5d5 100%);
+        background-size:
+          34px 34px,
+          34px 34px,
+          auto;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 16px 0 44px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand-mark,
+      .icon-tile {
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: 4px 4px 0 rgba(100, 86, 97, 0.25);
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+        background: var(--gold);
+      }
+
+      .back-button,
+      .small-button,
+      .open-link {
+        min-height: 40px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: #fffdf8;
+        cursor: pointer;
+        font-weight: 850;
+        text-decoration: none;
+      }
+
+      .back-button,
+      .small-button {
+        padding: 8px 12px;
+      }
+
+      .back-button:hover,
+      .small-button:hover,
+      .open-link:hover {
+        background: var(--gold);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(340px, 1.05fr);
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .hero-copy,
+      .badge-board,
+      .entry-card,
+      .entry-page,
+      .link-card,
+      .empty-state {
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-copy {
+        position: relative;
+        min-height: 360px;
+        overflow: hidden;
+        padding: 24px;
+        background:
+          linear-gradient(150deg, rgba(255, 250, 242, 0.94), rgba(255, 215, 189, 0.88)),
+          radial-gradient(circle at 88% 8%, rgba(205, 233, 255, 0.9), transparent 180px);
+      }
+
+      .hero-copy h1 {
+        width: min-content;
+        margin: 0;
+        font-size: clamp(3rem, 9vw, 6.4rem);
+        line-height: 0.82;
+        letter-spacing: 0;
+      }
+
+      .purpose {
+        max-width: 33rem;
+        margin: 18px 0 0;
+        color: #594e58;
+        font-size: 1.04rem;
+        line-height: 1.55;
+      }
+
+      .hero-map {
+        position: absolute;
+        right: 12px;
+        bottom: 8px;
+        width: min(390px, 86%);
+        height: 178px;
+      }
+
+      .path-line {
+        fill: none;
+        stroke: #75636a;
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 8 12;
+      }
+
+      .badge-board {
+        padding: 16px;
+        background: rgba(255, 253, 248, 0.94);
+      }
+
+      .board-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: start;
+        margin-bottom: 12px;
+      }
+
+      .board-head h2,
+      .entries-head h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .board-head p,
+      .entries-head p,
+      .status-line {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .badge-token {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+        min-height: 48px;
+        padding: 8px 10px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--badge-bg);
+        cursor: pointer;
+        text-align: left;
+        box-shadow: 3px 3px 0 rgba(100, 86, 97, 0.18);
+      }
+
+      .badge-token[aria-pressed="true"] {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 rgba(100, 86, 97, 0.26);
+        outline: 3px solid rgba(47, 42, 48, 0.12);
+      }
+
+      .badge-token .name {
+        overflow-wrap: anywhere;
+        font-weight: 900;
+      }
+
+      .badge-token .count {
+        display: grid;
+        min-width: 27px;
+        height: 27px;
+        place-items: center;
+        border: 2px solid rgba(47, 42, 48, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.62);
+        font-weight: 900;
+      }
+
+      .add-badge {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .add-badge input {
+        min-width: 0;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: #fffdf8;
+        padding: 8px 10px;
+      }
+
+      .active-row {
+        min-height: 34px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .entries-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 24px 0 12px;
+      }
+
+      .entries-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+      }
+
+      .entry-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 330px;
+        padding: 16px;
+        background: #fffdf8;
+      }
+
+      .entry-card::before {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border: 2px dashed rgba(100, 86, 97, 0.24);
+        border-radius: var(--radius);
+        pointer-events: none;
+      }
+
+      .entry-card::after {
+        content: "";
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        width: 108px;
+        height: 74px;
+        border: 2px solid rgba(100, 86, 97, 0.5);
+        border-radius: 54% 46% 50% 40%;
+        background: var(--spot);
+        opacity: 0.55;
+        transform: rotate(var(--tilt));
+      }
+
+      .card-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .icon-tile {
+        width: 78px;
+        height: 62px;
+        background: var(--entry-color);
+        font-size: 2rem;
+      }
+
+      .entry-card h3 {
+        margin: 14px 0 8px;
+        font-size: 1.35rem;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .entry-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        border: 1.5px solid rgba(47, 42, 48, 0.45);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.65);
+        padding: 4px 8px;
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .open-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 8px 12px;
+      }
+
+      .entry-page {
+        overflow: hidden;
+        background: #fffdf8;
+      }
+
+      .entry-hero {
+        display: grid;
+        grid-template-columns: 128px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+        padding: 22px;
+        background:
+          linear-gradient(135deg, var(--entry-color), rgba(255, 253, 248, 0.86)),
+          linear-gradient(90deg, rgba(100, 86, 97, 0.09) 1px, transparent 1px);
+        border-bottom: 2px solid var(--line);
+      }
+
+      .entry-hero .icon-tile {
+        width: 112px;
+        height: 94px;
+        background: rgba(255, 255, 255, 0.62);
+        font-size: 2.8rem;
+      }
+
+      .entry-hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 8vw, 4.8rem);
+        line-height: 0.9;
+        letter-spacing: 0;
+      }
+
+      .entry-hero p {
+        max-width: 720px;
+        margin: 12px 0 0;
+        color: #52474f;
+        font-size: 1.04rem;
+        line-height: 1.5;
+      }
+
+      .entry-body {
+        width: min(780px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 24px 0 36px;
+      }
+
+      .field-section {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 2px dotted rgba(100, 86, 97, 0.42);
+      }
+
+      .field-section h2 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+      }
+
+      .field-section p,
+      .field-section li {
+        color: #493f46;
+        font-family: var(--read);
+        font-size: 1.08rem;
+        line-height: 1.72;
+      }
+
+      .field-section p {
+        margin: 0;
+      }
+
+      .field-section ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .story-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .link-card {
+        display: block;
+        padding: 12px;
+        background: var(--paper);
+        box-shadow: 3px 3px 0 rgba(100, 86, 97, 0.16);
+        text-decoration: none;
+      }
+
+      .link-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 850;
+      }
+
+      .link-card strong {
+        display: block;
+        margin-top: 3px;
+      }
+
+      .empty-state {
+        padding: 18px;
+        background: rgba(255, 253, 248, 0.82);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .view {
+          animation: page-in 190ms ease-out;
+        }
+
+        .badge-token,
+        .entry-card,
+        .open-link,
+        .small-button,
+        .back-button {
+          transition:
+            transform 160ms ease,
+            background 160ms ease,
+            box-shadow 160ms ease;
+        }
+
+        .entry-card:hover {
+          transform: translateY(-3px);
+          box-shadow: var(--soft-shadow);
+        }
+      }
+
+      @keyframes page-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .entries-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-copy {
+          min-height: 315px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          width: min(100% - 20px, 1180px);
+          padding-top: 12px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+        }
+
+        .hero-copy,
+        .badge-board,
+        .entry-card {
+          padding: 13px;
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(2.65rem, 18vw, 4.3rem);
+        }
+
+        .badge-grid,
+        .add-badge,
+        .story-links {
+          grid-template-columns: 1fr;
+        }
+
+        .entries-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .entry-hero {
+          grid-template-columns: 1fr;
+          padding: 16px;
+        }
+
+        .entry-hero .icon-tile {
+          width: 90px;
+          height: 78px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <nav class="topbar" aria-label="Main navigation">
+        <a class="brand" href="#/" data-home-link>
+          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span>OpenJournal</span>
+        </a>
+        <button class="back-button hidden" type="button" data-back>Back to entries</button>
+      </nav>
+
+      <section class="view" data-home-view>
+        <header class="hero">
+          <section class="hero-copy" aria-labelledby="site-title">
+            <h1 id="site-title">OpenJournal</h1>
+            <p class="purpose">
+              Organized public journal for accomplishments, attempts, creative practice,
+              discipline, and work kept moving. Curious, silly, structured, pastel,
+              storybook-first.
+            </p>
+            <svg class="hero-map" viewBox="0 0 420 190" role="img" aria-label="Pastel adventure map path">
+              <path class="path-line" d="M24 142 C 76 40, 128 160, 190 88 S 318 40, 386 122" />
+              <circle cx="24" cy="142" r="15" fill="#ffd7df" stroke="#645661" stroke-width="3" />
+              <circle cx="190" cy="88" r="15" fill="#d2f0df" stroke="#645661" stroke-width="3" />
+              <circle cx="386" cy="122" r="15" fill="#cde9ff" stroke="#645661" stroke-width="3" />
+              <path d="M92 69 l17 -36 l17 36 z" fill="#ffe7a3" stroke="#645661" stroke-width="3" />
+              <path d="M280 67 l22 -24 l22 24 l-9 42 h-26 z" fill="#dfd7ff" stroke="#645661" stroke-width="3" />
+            </svg>
+          </section>
+
+          <aside class="badge-board" aria-labelledby="badge-title">
+            <div class="board-head">
+              <div>
+                <h2 id="badge-title">Badge table</h2>
+                <p>Pick badges. Entries shown must include every selected badge.</p>
+              </div>
+              <button class="small-button" type="button" data-clear>Clear</button>
+            </div>
+            <div class="badge-grid" data-badge-grid></div>
+            <form class="add-badge" data-add-badge>
+              <input
+                type="text"
+                name="badge"
+                autocomplete="off"
+                placeholder="Add badge to table"
+                aria-label="Add badge to table"
+              />
+              <button class="small-button" type="submit">Add</button>
+            </form>
+            <div class="active-row" data-active-row>No badges selected.</div>
+          </aside>
+        </header>
+
+        <section aria-labelledby="entries-title">
+          <div class="entries-head">
+            <div>
+              <h2 id="entries-title">Entries</h2>
+              <p>Map stops open into full public journal pages.</p>
+            </div>
+            <p class="status-line" data-results-count></p>
+          </div>
+          <div class="entries-grid" data-entries-grid></div>
+          <div class="empty-state hidden" data-empty>No entries match every selected badge.</div>
+        </section>
+      </section>
+
+      <article class="view entry-page hidden" data-entry-view></article>
+    </main>
+
+    <script>
+      const entries = [
+        {
+          id: "refining-github-with-ai",
+          title: "Refining My GitHub With AI",
+          icon: "⌘",
+          color: "#cde9ff",
+          spot: "#ffe7a3",
+          badges: ["AI Practice", "Public Work", "GitHub", "Creative Systems"],
+          summary:
+            "I bought a new computer dedicated to AI practice, with local AI as future target. I used feedback from professionals, personal connections, and other profiles to make my GitHub clearer.",
+          sentences: [
+            "I wanted my public work to look less accidental.",
+            "AI became practice equipment instead of decoration."
+          ],
+          happened:
+            "I treated GitHub like a public workshop. I made repos, revised my profile, compared examples, asked for feedback, and kept adjusting until it felt more intentional.",
+          artifact: [
+            "GitHub profile revisions",
+            "Repo cleanup",
+            "AI-assisted writing passes",
+            "New computer setup for future local AI work"
+          ],
+          links: [
+            { label: "Related practice", target: "commitment-to-work-despite-feelings" },
+            { label: "Related habit", target: "working-out-getting-fit" }
+          ]
+        },
+        {
+          id: "commitment-to-work-despite-feelings",
+          title: "Commitment To Do Work Despite Feelings",
+          icon: "☑",
+          color: "#ffd7df",
+          spot: "#d2f0df",
+          badges: ["Work Ethic", "Boundaries", "Discipline", "Store Life"],
+          summary:
+            "I was not fond of my job, but I did not quit. I kept showing up, doing my work quickly, and deciding my effort still needed purpose.",
+          sentences: [
+            "Showing up did not mean handing over my judgment.",
+            "I can work fast, stay in my lane, and still expect purpose."
+          ],
+          happened:
+            "I persisted. I am there, and how they use me is their problem. I will get my work done, but I will not take every task as automatically meaningful. If work is given to me, it needs purpose. Store still struggles, but that is not mine to carry.",
+          artifact: [
+            "Completed work",
+            "Boundary decisions",
+            "Clearer role judgment",
+            "Purpose check before accepting tasks"
+          ],
+          links: [
+            { label: "Public work", target: "refining-github-with-ai" },
+            { label: "Discipline", target: "working-out-getting-fit" }
+          ]
+        },
+        {
+          id: "working-out-getting-fit",
+          title: "Working Out, Getting Fit",
+          icon: "▲",
+          color: "#d2f0df",
+          spot: "#ffd7bd",
+          badges: ["Fitness", "Consistency", "Self-Pace", "Health", "Discipline"],
+          summary:
+            "I am inconsistent with working out, and that is okay. I still train more often than most and respect effort without turning it into punishment.",
+          sentences: [
+            "Uneven effort still counts.",
+            "I can push at my pace without making inconsistency into a failure story."
+          ],
+          happened:
+            "I keep training. Some weeks are stronger than others. I could put in more effort, but I am not using that as a reason to be bummed out. I am building by continuing.",
+          artifact: ["Workout log", "Routine notes", "Progress markers", "Personal benchmarks"],
+          links: [
+            { label: "Work discipline", target: "commitment-to-work-despite-feelings" },
+            { label: "Creative practice", target: "refining-github-with-ai" }
+          ]
+        }
+      ];
+
+      const defaultBadges = [
+        "AI Practice",
+        "Public Work",
+        "GitHub",
+        "Creative Systems",
+        "Work Ethic",
+        "Boundaries",
+        "Discipline",
+        "Store Life",
+        "Fitness",
+        "Consistency",
+        "Self-Pace",
+        "Health"
+      ];
+
+      const badgeColors = ["#cde9ff", "#ffd7df", "#d2f0df", "#ffe7a3", "#dfd7ff", "#ffd7bd"];
+      const savedBadges = JSON.parse(localStorage.getItem("openjournalBadges") || "[]");
+      const state = {
+        selectedBadges: new Set(),
+        badges: [...new Set([...defaultBadges, ...savedBadges])]
+      };
+
+      const badgeGrid = document.querySelector("[data-badge-grid]");
+      const entriesGrid = document.querySelector("[data-entries-grid]");
+      const resultsCount = document.querySelector("[data-results-count]");
+      const activeRow = document.querySelector("[data-active-row]");
+      const clearButton = document.querySelector("[data-clear]");
+      const emptyState = document.querySelector("[data-empty]");
+      const homeView = document.querySelector("[data-home-view]");
+      const entryView = document.querySelector("[data-entry-view]");
+      const backButton = document.querySelector("[data-back]");
+      const addBadgeForm = document.querySelector("[data-add-badge]");
+
+      function badgeCount(name) {
+        return entries.filter((entry) => entry.badges.includes(name)).length;
+      }
+
+      function entryMatches(entry) {
+        return [...state.selectedBadges].every((badge) => entry.badges.includes(badge));
+      }
+
+      function saveCustomBadges() {
+        const custom = state.badges.filter((badge) => !defaultBadges.includes(badge));
+        localStorage.setItem("openjournalBadges", JSON.stringify(custom));
+      }
+
+      function renderBadges() {
+        badgeGrid.innerHTML = "";
+        state.badges.forEach((badge, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "badge-token";
+          button.style.setProperty("--badge-bg", badgeColors[index % badgeColors.length]);
+          button.setAttribute("aria-pressed", String(state.selectedBadges.has(badge)));
+          button.innerHTML = `<span class="name">${badge}</span><span class="count">${badgeCount(badge)}</span>`;
+          button.addEventListener("click", () => {
+            if (state.selectedBadges.has(badge)) {
+              state.selectedBadges.delete(badge);
+            } else {
+              state.selectedBadges.add(badge);
+            }
+            renderHome();
+          });
+          badgeGrid.append(button);
+        });
+      }
+
+      function renderEntries() {
+        const visible = entries.filter(entryMatches);
+        entriesGrid.innerHTML = "";
+        visible.forEach((entry, index) => {
+          const card = document.createElement("article");
+          card.className = "entry-card";
+          card.style.setProperty("--entry-color", entry.color);
+          card.style.setProperty("--spot", entry.spot);
+          card.style.setProperty("--tilt", index % 2 === 0 ? "-4deg" : "4deg");
+          card.innerHTML = `
+            <div class="card-inner">
+              <div class="icon-tile" aria-hidden="true">${entry.icon}</div>
+              <h3>${entry.title}</h3>
+              <p>${entry.summary}</p>
+              <div class="chip-row">${entry.badges.map((badge) => `<span class="chip">${badge}</span>`).join("")}</div>
+              <a class="open-link" href="#/entry/${entry.id}">Open entry</a>
+            </div>
+          `;
+          entriesGrid.append(card);
+        });
+        resultsCount.textContent = `${visible.length} of ${entries.length} shown`;
+        emptyState.classList.toggle("hidden", visible.length > 0);
+      }
+
+      function renderActiveRow() {
+        const selected = [...state.selectedBadges];
+        activeRow.textContent = selected.length
+          ? `Filtering by: ${selected.join(" + ")}`
+          : "No badges selected.";
+      }
+
+      function renderHome() {
+        renderBadges();
+        renderActiveRow();
+        renderEntries();
+      }
+
+      function linkCards(entry) {
+        if (!entry.links.length) {
+          return "<p>No post links yet.</p>";
+        }
+        return `
+          <div class="story-links">
+            ${entry.links
+              .map((link) => {
+                const target = entries.find((item) => item.id === link.target);
+                return `<a class="link-card" href="#/entry/${target.id}"><span>${link.label}</span><strong>${target.title}</strong></a>`;
+              })
+              .join("")}
+          </div>
+        `;
+      }
+
+      function renderEntry(entry) {
+        entryView.style.setProperty("--entry-color", entry.color);
+        entryView.innerHTML = `
+          <header class="entry-hero">
+            <div class="icon-tile" aria-hidden="true">${entry.icon}</div>
+            <div>
+              <h1>${entry.title}</h1>
+              <p>${entry.summary}</p>
+            </div>
+          </header>
+          <div class="entry-body">
+            <div class="chip-row">${entry.badges.map((badge) => `<span class="chip">${badge}</span>`).join("")}</div>
+            <section class="field-section">
+              <h2>Two sentences</h2>
+              <p>${entry.sentences.join(" ")}</p>
+            </section>
+            <section class="field-section">
+              <h2>What happened</h2>
+              <p>${entry.happened}</p>
+            </section>
+            <section class="field-section">
+              <h2>Artifact</h2>
+              <ul>${entry.artifact.map((item) => `<li>${item}</li>`).join("")}</ul>
+            </section>
+            <section class="field-section">
+              <h2>Post links</h2>
+              ${linkCards(entry)}
+            </section>
+          </div>
+        `;
+      }
+
+      function showHome() {
+        homeView.classList.remove("hidden");
+        entryView.classList.add("hidden");
+        backButton.classList.add("hidden");
+        renderHome();
+      }
+
+      function showEntry(id) {
+        const entry = entries.find((item) => item.id === id);
+        if (!entry) {
+          location.hash = "#/";
+          return;
+        }
+        renderEntry(entry);
+        homeView.classList.add("hidden");
+        entryView.classList.remove("hidden");
+        backButton.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function route() {
+        const match = location.hash.match(/^#\/entry\/(.+)$/);
+        if (match) {
+          showEntry(match[1]);
+        } else {
+          showHome();
+        }
+      }
+
+      clearButton.addEventListener("click", () => {
+        state.selectedBadges.clear();
+        renderHome();
+      });
+
+      backButton.addEventListener("click", () => {
+        location.hash = "#/";
+      });
+
+      addBadgeForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = addBadgeForm.elements.badge;
+        const next = input.value.trim();
+        if (!next || state.badges.includes(next)) {
+          input.value = "";
+          return;
+        }
+        state.badges.push(next);
+        state.selectedBadges.add(next);
+        input.value = "";
+        saveCustomBadges();
+        renderHome();
+      });
+
+      window.addEventListener("hashchange", route);
+      route();
+    </script>
+  </body>
+</html>
